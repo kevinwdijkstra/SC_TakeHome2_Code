@@ -1,13 +1,13 @@
 %% main file
 p = 5;
-n = 2^p;
+N = 2^p;
 
 
 
 %% setup
 % create mesh and matrices
-[D2Mesh, D3Mesh, x, y, z] = CreateMesh(n);
-[D2Mat, D3Mat]   = CreateMatrix(n);
+[D2Mesh, D3Mesh, x, y, z] = CreateMesh(N);
+[D2Mat, D3Mat]   = CreateMatrix(N);
 
 % create exact solutions
 D2u_ex = u_ex_2D(D2Mesh);
@@ -22,10 +22,10 @@ D3f = f_3D(D3Mesh);
 [L_2D,U_2D] = lu(D2Mat);
 
 % add boundary conditions
-Ixlow = (D2Mesh(1,:)-1/(n)==0);
-Ixhig = (D2Mesh(1,:)+1/(n)==1);
-Iylow = (D2Mesh(2,:)-1/(n)==0);
-Iyhig = (D2Mesh(2,:)+1/(n)==1);
+Ixlow = (D2Mesh(1,:)-1/(N)==0);
+Ixhig = (D2Mesh(1,:)+1/(N)==1);
+Iylow = (D2Mesh(2,:)-1/(N)==0);
+Iyhig = (D2Mesh(2,:)+1/(N)==1);
 
 D2f_dir     = D2f + n^2*(   Ixlow.*u_ex_2D(D2Mesh - [1/(n);0])+...
                             Ixhig.*u_ex_2D(D2Mesh + [1/(n);0])+...

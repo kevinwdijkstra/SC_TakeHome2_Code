@@ -1,8 +1,8 @@
-function [D2Mesh, D3Mesh, x, y, z] = CreateMesh(n)
+function [D2Mesh, D3Mesh, x, y, z] = CreateMesh(N)
 
-    x = linspace(0,1,n+1);
-    y = linspace(0,1,n+1);
-    z = linspace(0,1,n+1);
+    x = linspace(0,1,N+1);
+    y = linspace(0,1,N+1);
+    z = linspace(0,1,N+1);
     
     x = x(2:end-1);
     y = y(2:end-1);
