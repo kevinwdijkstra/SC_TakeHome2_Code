@@ -14,6 +14,7 @@ end
 
 
 function [D1Mat] = Create1D(n)
-    D1Mat = (2*eye(n) -diag(ones(n-1,1),1) - diag(ones(n-1,1),-1));
+%     D1Mat = (2*eye(n) -diag(ones(n-1,1),1) - diag(ones(n-1,1),-1));
+    D1Mat = spdiags([-1 2 -1].*ones(n,1),-1:1,n,n);
 end
 
