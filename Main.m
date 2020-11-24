@@ -6,8 +6,8 @@ n = 2^p;
 
 %% setup
 % create mesh and matrices
-[D2Mesh D3Mesh x y z] = CreateMesh(n);
-[D2Mat D3Mat]   = CreateMatrix(n);
+[D2Mesh, D3Mesh, x, y, z] = CreateMesh(n);
+[D2Mat, D3Mat]   = CreateMatrix(n);
 
 % create exact solutions
 D2u_ex = u_ex_2D(D2Mesh);
