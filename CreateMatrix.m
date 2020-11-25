@@ -11,8 +11,6 @@ function [D2Mat, D3Mat] = CreateMatrix(n)
 end
 
 
-
-
 function [D1Mat] = Create1D(n)
     e = ones(n-1,1);
     D1Mat = spdiags([-e 2*e -e],-1:1,n-1,n-1);
