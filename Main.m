@@ -1,6 +1,5 @@
 %% main file
-p = 6;
-n = 2^p;
+ParameterFile;
 
 
 
@@ -16,23 +15,23 @@ D3u_ex = u_ex_3D(D3Mesh);
 D2f = f_2D(D2Mesh);
 D3f = f_3D(D3Mesh);
 
+N2D = numel(D2pList);
+timeList = zeros(N,2);
 
-%% direct solvers
-% 2D
-[L_2D,U_2D] = lu(D2Mat);
+for i = 1:N2D
+    %% direct solvers 2D
+    % calculate Cholesky Decompostion
+    C_2D = chol(D2Mat);
 
-% add boundary conditions
-Ixlow = (D2Mesh(1,:)-1/(n)==0);
-Ixhig = (D2Mesh(1,:)+1/(n)==1);
-Iylow = (D2Mesh(2,:)-1/(n)==0);
-Iyhig = (D2Mesh(2,:)+1/(n)==1);
+    % add boundary conditions
+    D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh,n);
 
-D2f_dir     = D2f + n^2*(   Ixlow.*u_ex_2D(D2Mesh - [1/(n);0])+...
-                            Ixhig.*u_ex_2D(D2Mesh + [1/(n);0])+...
-                            Iylow.*u_ex_2D(D2Mesh - [0;1/(n)])+...
-                            Iyhig.*u_ex_2D(D2Mesh + [0;1/(n)]));
+    % solve 2D problem
+    u_dir_2D = C_2D\(C_2D'\D2f_dir');
 
-u_dir_2D = D2Mat\D2f_dir';
+end
+
+
 
 
 scatter3(D2Mesh(1,:)',D2Mesh(2,:)',u_dir_2D)
