@@ -1,5 +1,5 @@
 %% main file
-p = 5;
+p = 6;
 n = 2^p;
 
 
