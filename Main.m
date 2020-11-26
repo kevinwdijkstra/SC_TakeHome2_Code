@@ -35,18 +35,22 @@ for i = 1:N2D
     %% direct solvers 2D
     % calculate Cholesky Decompostion
     tic;
-    C_2D = chol(D2Mat,'lower');
+%     C_2D = chol(D2Mat,'lower');
+    C_2D = CholeskyDecompostion(D2Mat);
     t_end = toc;
     timeList1(i) = t_end;
+        
+%     C_2D1 = chol(D2Mat,'lower');
+%     C_2D2 = CholeskyDecompostion(D2Mat);
+%     error = sum(sum(abs(C_2D1-C_2D2)))
+    
+
 
     NNZ(i,2) = nnz(C_2D);
 
     % add boundary conditions
     D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh,n);
 
-    
-    %% test
-    
     % solve 2D problem
     tic;
     u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir))';
@@ -58,17 +62,20 @@ for i = 1:N2D
 
 end
 %% plotting
-% loglog(D2nList,mean(timeList1,2))
-% hold on
-% loglog(D2nList,mean(timeList2,2))
-% hold off
-% grid on
-% legend("Cholesky Decomposition","Solver")
 
-
-loglog(D2nList,error2D)
+% time
+loglog(D2nList,mean(timeList1,2))
+hold on
+loglog(D2nList,mean(timeList2,2))
+hold off
 grid on
-legend("error")
+legend("Cholesky Decomposition","Solver")
+
+
+% error
+% loglog(D2nList,error2D)
+% grid on
+% legend("error")
 
 
 
