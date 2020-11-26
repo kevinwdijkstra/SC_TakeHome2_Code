@@ -40,9 +40,9 @@ for i = 1:N2D
     t_end = toc;
     timeList1(i) = t_end;
         
-%     C_2D1 = chol(D2Mat,'lower');
-%     C_2D2 = CholeskyDecompostion(D2Mat);
-%     error = sum(sum(abs(C_2D1-C_2D2)))
+    C_2D1 = chol(D2Mat,'lower');
+    C_2D2 = CholeskyDecompostion(D2Mat);
+    error = sum(sum(abs(C_2D1-C_2D2)))
     
 
 
@@ -64,18 +64,18 @@ end
 %% plotting
 
 % time
-loglog(D2nList,mean(timeList1,2))
-hold on
-loglog(D2nList,mean(timeList2,2))
-hold off
-grid on
-legend("Cholesky Decomposition","Solver")
+% loglog(D2nList,mean(timeList1,2))
+% hold on
+% loglog(D2nList,mean(timeList2,2))
+% hold off
+% grid on
+% legend("Cholesky Decomposition","Solver")
 
 
 % error
-% loglog(D2nList,error2D)
-% grid on
-% legend("error")
+loglog(D2nList,error2D)
+grid on
+legend("error")
 
 
 

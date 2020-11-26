@@ -8,9 +8,9 @@ function [C] = CholeskyDecompostion(A)
     
     C = 0*A;
     for k = 1:n
-        Ck     = sqrt(A(k,k)-sum(C(k,max((k-N),1):k-1).^2));
-        C(k,k) = Ck;
-        A(k,k) = Ck;
+%         Ck     = sqrt(A(k,k)-sum(C(k,max((k-N),1):k-1).^2));
+%         C(k,k) = Ck;
+%         A(k,k) = Ck;
 %         for i = k+1:min(k+M,n)
 %             
 %             Csub   = sum(C(i,max((k-N),1):(k-1)).*C(k,max((k-N),1):(k-1)));
@@ -26,8 +26,13 @@ function [C] = CholeskyDecompostion(A)
         
         Vec = C(k,Id2);
         Mat = C(Id1,Id2);
+        
+        
+        Ck     = sqrt(A(k,k)-norm(Vec)^2);
+        C(k,k) = Ck;
+        
         C(Id1,k) = 1/Ck*(A(Id1,k) - Mat*Vec');
-        A(Id1,k) = C(Id1,k);
+%         A(Id1,k) = C(Id1,k);
         
         
     end
