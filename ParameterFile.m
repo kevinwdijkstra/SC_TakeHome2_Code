@@ -1,2 +1,2 @@
-D2pList = 2:10;
-D2nList = 2.^p;
+D2pList = 2:6;
+D2nList = 2.^D2pList;
