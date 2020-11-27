@@ -32,7 +32,7 @@ function [C] = CholeskyDecompostion(A)
         
         % Note the norm is just a matrix vector product, however the norm
         % makes more clever use of the sparse vector for speed up.
-        Cj     = sqrt(A(j,j)-sum((Vec).^2));
+        Cj     = sqrt(A(j,j)-norm(Vec)^2);
         C(j,j) = Cj; %store C(k,k) as accessing data takes some time.
         
         % calculate the entire second for loop over i in one go.
