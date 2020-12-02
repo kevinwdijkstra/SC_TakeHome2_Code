@@ -1,6 +1,5 @@
 function [D2f_dir] = CreateBC2D(u,f,Mesh,n)
 D2f = f(Mesh);
-u_ex_2D = u(Mesh);
 
 Ixlow = (Mesh(1,:)-1/(n)==0);
 Ixhig = (Mesh(1,:)+1/(n)==1);

@@ -5,7 +5,7 @@ function [D3Mat] = CreateMatrix3D(n)
     D2Mat = (kron(D1Mat,speye(n-1))+kron(speye(n-1),D1Mat));
     D3Mat = kron(D2Mat,speye(n-1))+kron(speye((n-1)^2),D1Mat);
     
-    D3Mat = (n)^3*D3Mat;
+    D3Mat = n^2*D3Mat;
     
 end
 
