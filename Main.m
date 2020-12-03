@@ -19,8 +19,9 @@ ParameterFile;
 % D3f = f_3D(D3Mesh);
 
 N2D = numel(D2pList);
-timeList1 = zeros(N2D,1);
-timeList2 = zeros(N2D,1);
+times_fac_2D = zeros(N2D,1);
+times_sol_2D = zeros(N2D,1);
+times_IC_2D = zeros(N2D,1);
 NNZ = zeros(N2D,2);
 error2D = zeros(N2D,1);
 ICBIM_conv_2D = zeros(N2D,M);
@@ -46,8 +47,7 @@ for i = 1:N2D
     C_2D = chol(D2Mat,'lower');
 %     C_2D = ichol(D2Mat);
 %     C_2D = CholeskyDecompostion(D2Mat);
-    t_end = toc;
-    timeList1(i) = t_end;
+    times_fac_2D(i) = toc;
         
 %     C_2D1 = chol(D2Mat,'lower');
 %     C_2D2 = CholeskyDecompostion(D2Mat);
@@ -59,8 +59,7 @@ for i = 1:N2D
     tic;
 %     u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir))';
     u_dir_2D = C_2D'\(C_2D\(D2f_dir));
-    t_end = toc;
-    timeList2(i) = t_end;
+    times_sol_2D(i) = toc;
     
     error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
     
@@ -73,12 +72,14 @@ for i = 1:N2D
     rk = D2f_dir;
     crit = epsilon*norm(D2f_dir);
     j = 0;
+    tic;
     while norm(rk)>crit
         uk = L'\(L\(R*uk + D2f_dir));
         rk = D2f_dir - D2Mat*uk;
         j = j+1;
         ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
     end
+    times_IC_2D(i) = toc;
 
 end
 
@@ -86,6 +87,9 @@ end
 %% 3D problem
 N3D = numel(D3pList);
 error3D = zeros(N3D,1);
+times_fac_3D = zeros(N3D,1);
+times_sol_3D = zeros(N3D,1);
+times_IC_3D = zeros(N3D,1);
 ICBIM_conv_3D = zeros(N3D,M);
 
 for i = 1:N3D
@@ -103,12 +107,16 @@ for i = 1:N3D
     %% direct solvers 3D
     % calculate Cholesky Decompostion
     disp("Direct Solver")
+    tic;
     C_3D = chol(D3Mat,'lower');
 %     C_3D = CholeskyDecompostion(D3Mat);
+    times_fac_3D(i) = toc;
         
     % solve 3D problem
 %     u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir))';
+    tic;
     u_dir_3D = C_3D'\(C_3D\(D3f_dir));
+    times_sol_3D(i) = toc;
     
     error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
     
@@ -120,12 +128,14 @@ for i = 1:N3D
     rk = D3f_dir;
     crit = epsilon*norm(D3f_dir);
     j = 0;
+    tic;
     while norm(rk)>crit
         uk = L'\(L\(R*uk + D3f_dir));
         rk = D3f_dir - D3Mat*uk;
         j = j+1;
         ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
     end
+    times_IC_3D(i) = toc;
 
 end
 
@@ -148,16 +158,45 @@ hold off
 grid on
 legend("2D","3D")
 
-figure
+figure(2)
 subplot(2,1,1)
 loglog(ICBIM_conv_2D');
 title("2D IC BIM")
-legend(num2str(D2pList'))
+legend(compose('p=%u',D3pList))
 subplot(2,1,2)
 loglog(ICBIM_conv_3D');
 title("3D IC BIM")
-legend(num2str(D3pList'))
+legend(compose('p=%u',D3pList))
 
+
+
+figure(3)
+subplot(3,1,1)
+loglog(D2nList,times_fac_2D);
+hold on
+loglog(D3nList,times_fac_3D);
+title("Cholesky factorization")
+legend("2D","3D",'location','southeast')
+grid on
+hold off
+
+subplot(3,1,2)
+loglog(D2nList,times_sol_2D);
+hold on
+loglog(D3nList,times_sol_3D);
+title("Forward/Backward solving")
+legend("2D","3D",'location','southeast')
+grid on
+hold off
+
+subplot(3,1,3)
+loglog(D2nList,times_IC_2D);
+hold on
+loglog(D3nList,times_IC_3D);
+title("IC BIM")
+legend("2D","3D",'location','southeast')
+grid on
+hold off
 
 
 % scatter3(D2Mesh(1,:)',D2Mesh(2,:)',u_dir_2D)
