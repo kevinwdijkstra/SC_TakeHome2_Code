@@ -181,15 +181,7 @@ for i = 1:N3D
 end
 
 %% plotting
-
-% time
-% loglog(D2nList,mean(timeList1,2))
-% hold on
-% loglog(D2nList,mean(timeList2,2))
-% hold off
-% grid on
-% legend("Cholesky Decomposition","Solver")
-
+set(0,'DefaultFigureWindowStyle','docked')
 
 %% error solutions
 figure(1)
@@ -275,6 +267,9 @@ legend(compose('p=%u',D3pList))
 
 
 
+
+
+set(0,'DefaultFigureWindowStyle','normal')
 
 
 
