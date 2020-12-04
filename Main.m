@@ -42,11 +42,15 @@ for i = 1:N2D
     %% direct solvers 2D
     disp("Direct solver")
     % calculate Cholesky Decompostion
-    tic;
-    C_2D = chol(D2Mat,'lower');
-%     C_2D = ichol(D2Mat);
-%     C_2D = CholeskyDecompostion(D2Mat);
-    t_end = toc;
+    if use_MATLAB
+        tic;
+        C_2D = chol(D2Mat,'lower');
+        t_end = toc;
+    else
+        tic
+        C_2D = CholeskyDecompostion(D2Mat);
+        t_end = toc;
+    end
     timeList1(i) = t_end;
         
 %     C_2D1 = chol(D2Mat,'lower');
@@ -56,10 +60,15 @@ for i = 1:N2D
     NNZ(i,2) = nnz(C_2D);
 
     % solve 2D problem
-    tic;
-%     u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir))';
-    u_dir_2D = C_2D'\(C_2D\(D2f_dir));
-    t_end = toc;
+    if use_MATLAB
+        tic;
+        u_dir_2D = C_2D'\(C_2D\(D2f_dir));
+        t_end = toc;
+    else
+        tic;
+        u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir))';
+        t_end = toc;
+    end
     timeList2(i) = t_end;
     
     error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
@@ -73,13 +82,21 @@ for i = 1:N2D
     rk = D2f_dir;
     crit = epsilon*norm(D2f_dir);
     j = 0;
-    while norm(rk)>crit
-        uk = L'\(L\(R*uk + D2f_dir));
-        rk = D2f_dir - D2Mat*uk;
-        j = j+1;
-        ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
+    if use_MATLAB
+        while norm(rk)>crit
+            uk = L'\(L\(R*uk + D2f_dir));
+            rk = D2f_dir - D2Mat*uk;
+            j = j+1;
+            ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
+        end
+    else
+        while norm(rk)>crit
+            uk = UpperSolver(L',LowerSolver(L,R*uk + D2f_dir))';
+            rk = D2f_dir - D2Mat*uk;
+            j = j+1;
+            ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
+        end
     end
-
 end
 
 
@@ -103,12 +120,18 @@ for i = 1:N3D
     %% direct solvers 3D
     % calculate Cholesky Decompostion
     disp("Direct Solver")
-    C_3D = chol(D3Mat,'lower');
-%     C_3D = CholeskyDecompostion(D3Mat);
+    if use_MATLAB
+        C_3D = chol(D3Mat,'lower');
+    else
+        C_3D = CholeskyDecompostion(D3Mat);
+    end
         
     % solve 3D problem
-%     u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir))';
-    u_dir_3D = C_3D'\(C_3D\(D3f_dir));
+    if use_MATLAB
+        u_dir_3D = C_3D'\(C_3D\(D3f_dir));
+    else
+        u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir))';
+    end
     
     error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
     
@@ -120,11 +143,20 @@ for i = 1:N3D
     rk = D3f_dir;
     crit = epsilon*norm(D3f_dir);
     j = 0;
-    while norm(rk)>crit
-        uk = L'\(L\(R*uk + D3f_dir));
-        rk = D3f_dir - D3Mat*uk;
-        j = j+1;
-        ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
+    if use_MATLAB
+        while norm(rk)>crit
+            uk = L'\(L\(R*uk + D3f_dir));
+            rk = D3f_dir - D3Mat*uk;
+            j = j+1;
+            ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
+        end
+    else
+        while norm(rk)>crit
+            uk = UpperSolver(L',LowerSolver(L,R*uk + D3f_dir))';
+            rk = D3f_dir - D3Mat*uk;
+            j = j+1;
+            ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
+        end
     end
 
 end
@@ -140,22 +172,60 @@ end
 % legend("Cholesky Decomposition","Solver")
 
 
-% error
-loglog(D2nList,error2D)
+%% error solutions
+figure(1)
+loglog((D2nList),error2D)
 hold on
-loglog(D3nList,error3D)
+loglog((D3nList),error3D)
 hold off
+set(gca,'xtick',D2nList);
+set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
 grid on
 legend("2D","3D")
+xlabel("number of grid elements in each dimension")
+ylabel("inf norm of the error")
+title(["Error convergence of the discritized system in 2D and 3D";" with the help of direct solvers for various number of grid spacings."]);
 
-figure
+%% time for operations
+figure(2)
+loglog(D2nList,timeList1);
+hold on
+loglog(D2nList,timeList2);
+hold off
+set(gca,'xtick',D2nList);
+set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+grid on
+legend("Cholesky decomposition","Forward/Backward solve");
+xlabel("number of grid elements in each dimension");
+ylabel("time in seconds of each operation");
+title({'Time requirements of the Cholesky decomposition and';'the Forward/Backward solve steps for various number of grid elements.'});
+
+%% NNZ fill in ratio
+figure(3)
+semilogx(D2nList,NNZ(:,2)./NNZ(:,1));
+set(gca,'xtick',D2nList);
+set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+grid on
+xlabel("number of grid elements in each dimension");
+ylabel("ratio of NNZ of C_h and A_h");
+title("the C_h/A_h ratio of the non zero elements counts in each matrix.");
+
+%% convergence of IC BIM
+figure(4)
 subplot(2,1,1)
 loglog(ICBIM_conv_2D');
-title("2D IC BIM")
+title("2D IC BIM convergence")
+grid on
+xlabel("Number of iterations");
+ylabel("2 norm of the error");
 legend(num2str(D2pList'))
 subplot(2,1,2)
 loglog(ICBIM_conv_3D');
-title("3D IC BIM")
+title("3D IC BIM convergence")
+grid on
+xlabel("Number of iterations");
+ylabel("2 norm of the error");
+
 legend(num2str(D3pList'))
 
 
