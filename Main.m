@@ -67,7 +67,7 @@ for i = 1:N2D
         t_end = toc;
     else
         tic;
-        u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir,n-1))';
+        u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir,n-1),n-1)';
         t_end = toc;
     end
     times_sol_2D(i) = t_end;
@@ -97,7 +97,7 @@ for i = 1:N2D
         L1 = L*Dinv;
         R = L1*L' - D2Mat;
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L1,R*uk + D2f_dir,n-1))';
+            uk = UpperSolver(L',LowerSolver(L1,R*uk + D2f_dir,n-1),n-1);
             rk = D2f_dir - D2Mat*uk;
             j = j+1;
             ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
@@ -150,7 +150,7 @@ for i = 1:N3D
         times_sol_3D(i) = toc;
     else
         tic;
-        u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir,(n-1)^2))';
+        u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir,(n-1)^2),(n-1)^2)';
         times_sol_3D(i) = toc;
     end
     
@@ -178,7 +178,7 @@ for i = 1:N3D
         L1 = L*Dinv;
         R = L1*L' - D3Mat;
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L1,R*uk + D3f_dir,(n-1)^2))';
+            uk = UpperSolver(L',LowerSolver(L1,R*uk + D3f_dir,(n-1)^2),(n-1)^2);
             rk = D3f_dir - D3Mat*uk;
             j = j+1;
             ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
