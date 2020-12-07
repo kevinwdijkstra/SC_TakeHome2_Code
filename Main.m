@@ -172,7 +172,7 @@ for i = 1:N3D
             ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
         end
     else
-        L = IncompleteCholesky(D3Mat,[n-1,(n-1)^2]);
+        L = IncompleteCholesky(D3Mat,n-1,(n-1)^2);
         Dinv = inv(spdiags(spdiags(L,0),0,(n-1)^3,(n-1)^3));
         L1 = L*Dinv;
         R = L*Dinv*L' - D3Mat;
