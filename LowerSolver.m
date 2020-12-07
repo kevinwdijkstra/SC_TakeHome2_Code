@@ -5,7 +5,7 @@ narginchk(2,3)
 [~,m] = size(C);
 %x = zeros(1,m);
 
-switch 3
+switch nargin
     case 2
         % loop over x from first value to last.
         for i = 1:m
