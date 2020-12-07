@@ -77,14 +77,14 @@ for i = 1:N2D
     
     %% IC BIM
     disp("IC BIM")
-    L = ichol(D2Mat);
-    R = L*L' - D2Mat;
     uk = 0*D2f_dir;
     rk = D2f_dir;
     crit = epsilon*norm(D2f_dir);
     j = 0;
     tic;
     if use_MATLAB
+        L = ichol(D2Mat);
+        R = L*L' - D2Mat;
         while norm(rk)>crit
             uk = L'\(L\(R*uk + D2f_dir));
             rk = D2f_dir - D2Mat*uk;
@@ -92,8 +92,11 @@ for i = 1:N2D
             ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
         end
     else
+        L = IncompleteCholesky(D2Mat,n-1);
+        Dinv = inv(spdiags(spdiags(L,0),0,(n-1)^2,(n-1)^2));
+        R = L*Dinv*L' - D2Mat;
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L,R*uk + D2f_dir))';
+            uk = UpperSolver(L',LowerSolver(L*Dinv,R*uk + D2f_dir))';
             rk = D2f_dir - D2Mat*uk;
             j = j+1;
             ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
@@ -154,14 +157,14 @@ for i = 1:N3D
     
         %% IC BIM
     disp("IC BIM")
-    L = ichol(D3Mat);
-    R = L*L' - D3Mat;
     uk = 0*D3f_dir;
     rk = D3f_dir;
     crit = epsilon*norm(D3f_dir);
     j = 0;
     tic;
     if use_MATLAB
+        L = ichol(D3Mat);
+        R = L*L' - D3Mat;
         while norm(rk)>crit
             uk = L'\(L\(R*uk + D3f_dir));
             rk = D3f_dir - D3Mat*uk;
@@ -169,8 +172,12 @@ for i = 1:N3D
             ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
         end
     else
+        L = IncompleteCholesky(D3Mat,[n-1,(n-1)^2]);
+        Dinv = inv(spdiags(spdiags(L,0),0,(n-1)^3,(n-1)^3));
+        L1 = L*Dinv;
+        R = L*Dinv*L' - D3Mat;
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L,R*uk + D3f_dir))';
+            uk = UpperSolver(L',LowerSolver(L1,R*uk + D3f_dir))';
             rk = D3f_dir - D3Mat*uk;
             j = j+1;
             ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);

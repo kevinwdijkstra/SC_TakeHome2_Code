@@ -1,9 +1,9 @@
-D2pList = 2:7; % do not go above 7 for MATLAB implementation of 5 for user implementation
-D3pList = 2:5; % do not go above 5 for MATLAB implementation of 3 for user implementation
+D2pList = 2:5; % do not go above 7 for MATLAB implementation of 5 for user implementation
+D3pList = 2:4; % do not go above 5 for MATLAB implementation of 3 for user implementation
 
 epsilon = 1e-10; % convergence criteria IC BIM
 
-use_MATLAB = true; % when true use matlab own implementation for code speed up
+use_MATLAB = false; % when true use matlab own implementation for code speed up
 
 M = 2000; % max number of iterations to plot convergence
 
