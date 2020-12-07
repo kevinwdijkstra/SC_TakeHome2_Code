@@ -67,7 +67,7 @@ for i = 1:N2D
         t_end = toc;
     else
         tic;
-        u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir,n-1),n-1)';
+        u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir,n-1),n-1);
         t_end = toc;
     end
     times_sol_2D(i) = t_end;
@@ -150,7 +150,7 @@ for i = 1:N3D
         times_sol_3D(i) = toc;
     else
         tic;
-        u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir,(n-1)^2),(n-1)^2)';
+        u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir,(n-1)^2),(n-1)^2);
         times_sol_3D(i) = toc;
     end
     
