@@ -264,7 +264,7 @@ title("2D IC BIM convergence")
 grid on
 xlabel("Number of iterations");
 ylabel("2 norm of the error");
-legend(compose('p=%u',D3pList))
+legend(compose('p=%u',D2pList))
 subplot(2,1,2)
 loglog(ICBIM_conv_3D');
 title("3D IC BIM convergence")
