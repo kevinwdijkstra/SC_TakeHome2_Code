@@ -20,11 +20,10 @@ function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options,n,dim)
         end
     else
         L = IncompleteCholesky(A,n-1,dim);
-        Dinv = (spdiags(1./spdiags(L,0),0,(n-1)^dim,(n-1)^dim));
+        Dinv = inv(spdiags(spdiags(L,0),0,(n-1)^dim,(n-1)^dim));
         L1 = L*Dinv;
         R = L1*L' - A;
         while norm(rk)>crit
-            disp(num2str(rk))
             uk = UpperSolver(L',LowerSolver(L1,R*uk + f,(n-1)^(dim-1)),(n-1)^(dim-1));
             rk = f - A*uk;
             j = j+1;

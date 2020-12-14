@@ -69,7 +69,6 @@ for i = 1:N2D
     if do_ICCG
         %% ICCG
         fprintf("ICCG:              ")
-        crit = epsilon*norm(D2f_dir);
         u_k_ICCG_2D = 0*D2f_dir;     % we need a blank vector of correct size
         [u_k_ICCG_2D(p),ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options,n,2);
         fprintf(strcat(num2str(times_ICCG_2D(i))," seconds\n"));
@@ -126,7 +125,6 @@ for i = 1:N3D
     if do_ICCG
         %% ICCG
         fprintf("ICCG:              ")
-        crit = epsilon*norm(D3f_dir);
         u_k_ICCG_3D = 0*D3f_dir;     % we need a blank vector of correct size
         [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,3);
         fprintf(strcat(num2str(times_ICCG_3D(i))," seconds\n"));
@@ -159,7 +157,7 @@ if plot_figure
     figure(2)
     title({'Time requirements of the Cholesky decomposition and';'the Forward/Backward solve steps for various number of grid elements.'});
 
-    subplot(3,1,1)
+    subplot(4,1,1)
     loglog(D2nList,times_fac_2D);
     hold on
     loglog(D2nList,times_sol_2D);
@@ -172,7 +170,7 @@ if plot_figure
     ylabel("time in seconds of each operation");
     title("2D Direct:");
 
-    subplot(3,1,2)
+    subplot(4,1,2)
     loglog(D3nList,times_fac_3D);
     hold on
     loglog(D3nList,times_sol_3D);
@@ -185,7 +183,7 @@ if plot_figure
     ylabel("time in seconds of each operation");
     title("3D Direct:");
 
-    subplot(3,1,3)
+    subplot(4,1,3)
     loglog(D2nList,times_ICBIM_2D);
     hold on
     loglog(D3nList,times_ICBIM_3D);
@@ -197,6 +195,19 @@ if plot_figure
     xlabel("number of grid elements in each dimension");
     ylabel("time in seconds of each operation");
     title("IC BIM:");
+    
+    subplot(4,1,4)
+    loglog(D2nList,times_ICCG_2D);
+    hold on
+    loglog(D3nList,times_ICCG_3D);
+    hold off
+    set(gca,'xtick',D2nList);
+    set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+    grid on
+    legend("2D","3D",'location','southeast');
+    xlabel("number of grid elements in each dimension");
+    ylabel("time in seconds of each operation");
+    title("ICCG:");
 
 
     %% NNZ fill in ratio
@@ -243,16 +254,36 @@ if plot_figure
     ylabel("2 norm of the error");
     legend(compose('p=%u',D3pList))
     
+    %% total excecution time
+    figure(6)
+    subplot(2,1,1)
+    loglog(D2nList,times_sol_2D+times_fac_2D);
+    hold on
+    loglog(D2nList,times_ICBIM_2D);
+    loglog(D2nList,times_ICCG_2D);
+    hold off
+    title("time of convergence in 2D")
+    grid on
+    xlabel("number of grid elements in each dimension");
+    ylabel("total time");
+    legend("Direct","IC BIM","ICCG",'location','northwest')
+    subplot(2,1,2)
+    loglog(D3nList,times_sol_3D+times_fac_3D);
+    hold on
+    loglog(D3nList,times_ICBIM_3D);
+    loglog(D3nList,times_ICCG_3D);
+    hold off
+    title("time of convergence in 3D")
+    grid on
+    xlabel("number of grid elements in each dimension");
+    ylabel("total time");
+    legend("Direct","IC BIM","ICCG",'location','northwest')
+    
     
     set(0,'DefaultFigureWindowStyle','normal')
 end
 
-
-% scatter3(D2Mesh(1,:)',D2Mesh(2,:)',u_dir_2D)
-% hold on
-% scatter3(D2Mesh(1,:)',D2Mesh(2,:)',D2u_ex)
-% hold off
-% legend("dir","ex")
+disp("Done");
 
 
 
