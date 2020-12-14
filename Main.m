@@ -101,7 +101,7 @@ for i = 1:N3D
     disp("Direct Solver")
     
     u_dir_3D = 0*D3f_dir;     % we need a blank vector of correct size
-    [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options,n,2);
+    [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options,n,3);
     
     error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
     
@@ -115,7 +115,7 @@ for i = 1:N3D
     disp("ICCG")
     crit = epsilon*norm(D3f_dir);
     u_k_ICCG_3D = 0*D3f_dir;     % we need a blank vector of correct size
-    [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,2);
+    [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,3);
     
 end
 
