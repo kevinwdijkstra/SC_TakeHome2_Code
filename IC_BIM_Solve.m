@@ -1,4 +1,4 @@
-function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options)
+function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options,n,dim)
 
 
     ICBIM_conv = zeros(1,solve_options.M);
@@ -19,12 +19,12 @@ function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options)
             ICBIM_conv(1,j) = norm(rk)/nF;
         end
     else
-        L = IncompleteCholesky(A,size(A,1)-1);
-        Dinv = (spdiags(1./spdiags(L,0),0,(size(A,1)),(size(A,1))));
+        L = IncompleteCholesky(A,n-1,dim);
+        Dinv = (spdiags(1./spdiags(L,0),0,(n-1)^dim,(n-1)^dim));
         L1 = L*Dinv;
         R = L1*L' - A;
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L1,R*uk + f,size(L1,1)),size(L,1)-1);
+            uk = UpperSolver(L',LowerSolver(L1,R*uk + f,(n-1)^(dim-1)),(n-1)^(dim-1));
             rk = f - A*uk;
             j = j+1;
             ICBIM_conv(1,j) = norm(rk)/nF;

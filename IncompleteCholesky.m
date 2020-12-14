@@ -1,14 +1,14 @@
-function [A] = IncompleteCholesky(A,p,q)
+function [A] = IncompleteCholesky(A,p,dim)
 % INCOMPLETECHOLESKY Compute Incomplete Cholesky factor with bands at
 %   the diagonal and the off-diagonals +-1, +-p and optionally at +-q.
 
 narginchk(2,3)
-
+q = p^2;
 n = size(A,1);
 A(n+1:(n+1):end) = 0;
 A((n*p+1):(n+1):end) = 0;
 
-switch nargin
+switch dim
     case 2 %2D case
         for k=2:p
             A(k,k) = A(k,k) - A(k,k-1)^2/A(k-1,k-1);

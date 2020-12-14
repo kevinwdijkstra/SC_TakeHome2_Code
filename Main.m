@@ -48,24 +48,24 @@ for i = 1:N2D
 
 
     %% direct solvers 2D
-%     disp("Direct solver")
-%     u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
-%     [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options);
-%     
-%     error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
+    disp("Direct solver")
+    u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
+    [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options);
+    
+    error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
     
     
     %% IC BIM
-%     disp("IC BIM")
-%     
-%     [u_k_ICBIM,ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options);
+    disp("IC BIM")
+    u_k_ICBIM_2D = 0*D2f_dir;     % we need a blank vector of correct size
+    [u_k_ICBIM_2D(p),ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options,n,2);
  
     
     %% ICCG
     disp("ICCG")
     crit = epsilon*norm(D2f_dir);
-    
-    [u_k_ICCG_2D,ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options);
+    u_k_ICCG_2D = 0*D2f_dir;     % we need a blank vector of correct size
+    [u_k_ICCG_2D(p),ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options,n,2);
     
 end
 
@@ -107,15 +107,15 @@ for i = 1:N3D
     
     %% IC BIM
     disp("IC BIM")
-    
-    [uk,ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options);
+    u_k_ICBIM_3D = 0*D3f_dir;     % we need a blank vector of correct size
+    [u_k_ICBIM_3D(p),ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options,n,3);
 
     
     %% ICCG
     disp("ICCG")
     crit = epsilon*norm(D3f_dir);
-    
-    [u_k_ICCG_3D,ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options);
+    u_k_ICCG_3D = 0*D3f_dir;     % we need a blank vector of correct size
+    [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,2);
     
 end
 

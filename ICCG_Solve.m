@@ -1,4 +1,4 @@
-function [u_k,ICCG_conv,times_ICCG] = ICCG_Solve(A,f,solve_options)
+function [u_k,ICCG_conv,times_ICCG] = ICCG_Solve(A,f,solve_options,n,dim)
 
     convergence.ICCG_conv = zeros(1,solve_options.M);
     convergence.i = 1;
@@ -9,7 +9,7 @@ function [u_k,ICCG_conv,times_ICCG] = ICCG_Solve(A,f,solve_options)
     if solve_options.use_MATLAB
         M_pre = ichol(A);
     else
-        M_pre = IncompleteCholesky(A,size(A,1)-1);
+        M_pre = IncompleteCholesky(A,n-1,dim);
     end    
     
     % k =0
