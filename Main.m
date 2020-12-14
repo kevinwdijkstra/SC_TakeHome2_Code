@@ -32,12 +32,17 @@ for i = 1:N2D
     n = D2nList(i);
     [D2Mesh, x, y, z] = CreateMesh2D(n);
     [D2Mat]   = CreateMatrix2D(n);
+    p = symrcm(D2Mat);
+    if ~use_symrcm
+        p = 1:length(p);
+    end
+    D2Mat = D2Mat(p,p);
     D2u_ex = u_ex_2D(D2Mesh);
 
     NNZ(i,1) = nnz(D2Mat);
     
     % add boundary conditions
-    D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh,n)';
+    D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh(:,p),n)';
 
 
     %% direct solvers 2D
@@ -71,6 +76,8 @@ for i = 1:N2D
         t_end = toc;
     end
     times_sol_2D(i) = t_end;
+    % reverse reordering
+    u_dir_2D(p) = u_dir_2D;
     
     error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
     
@@ -78,25 +85,27 @@ for i = 1:N2D
     %% IC BIM
     disp("IC BIM")
     L = ichol(D2Mat);
+    LT = L';
     R = L*L' - D2Mat;
     uk = 0*D2f_dir;
     rk = D2f_dir;
     crit = epsilon*norm(D2f_dir);
     j = 0;
+    nF = norm(D2f_dir);
     tic;
     if use_MATLAB
         while norm(rk)>crit
-            uk = L'\(L\(R*uk + D2f_dir));
+            uk = LT\(L\(R*uk + D2f_dir));
             rk = D2f_dir - D2Mat*uk;
             j = j+1;
-            ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
+            ICBIM_conv_2D(i,j) = norm(rk)/nF;
         end
     else
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L,R*uk + D2f_dir))';
+            uk = UpperSolver(LT,LowerSolver(L,R*uk + D2f_dir))';
             rk = D2f_dir - D2Mat*uk;
             j = j+1;
-            ICBIM_conv_2D(i,j) = norm(rk)/norm(D2f_dir);
+            ICBIM_conv_2D(i,j) = norm(rk)/nF;
         end
     end
     times_IC_2D(i) = toc;
@@ -119,10 +128,15 @@ for i = 1:N3D
     n = D3nList(i);
     [D3Mesh, x, y, z] = CreateMesh3D(n);
     [D3Mat]   = CreateMatrix3D(n);
+    p = symrcm(D3Mat);
+    if ~use_symrcm
+        p = 1:length(p);
+    end
+    D3Mat = D3Mat(p,p);
     D3u_ex = u_ex_3D(D3Mesh);
     
     % add boundary conditions
-    D3f_dir = CreateBC3D(@(x) u_ex_3D(x),@(x)  f_3D(x),D3Mesh,n)';
+    D3f_dir = CreateBC3D(@(x) u_ex_3D(x),@(x)  f_3D(x),D3Mesh(:,p),n)';
 
 
     %% direct solvers 3D
@@ -149,31 +163,36 @@ for i = 1:N3D
         u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir))';
         times_sol_3D(i) = toc;
     end
+    % reverse ordering
+    u_dir_3D(p) = u_dir_3D;
+    
     
     error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
     
-        %% IC BIM
+    %% IC BIM
     disp("IC BIM")
     L = ichol(D3Mat);
+    LT = L';
     R = L*L' - D3Mat;
     uk = 0*D3f_dir;
     rk = D3f_dir;
     crit = epsilon*norm(D3f_dir);
     j = 0;
+    nF = norm(D3f_dir);
     tic;
     if use_MATLAB
         while norm(rk)>crit
-            uk = L'\(L\(R*uk + D3f_dir));
+            uk = LT\(L\(R*uk + D3f_dir));
             rk = D3f_dir - D3Mat*uk;
             j = j+1;
-            ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
+            ICBIM_conv_3D(i,j) = norm(rk)/nF;
         end
     else
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L,R*uk + D3f_dir))';
+            uk = UpperSolver(LT,LowerSolver(L,R*uk + D3f_dir))';
             rk = D3f_dir - D3Mat*uk;
             j = j+1;
-            ICBIM_conv_3D(i,j) = norm(rk)/norm(D3f_dir);
+            ICBIM_conv_3D(i,j) = norm(rk)/nF;
         end
     end
     times_IC_3D(i) = toc;
@@ -181,96 +200,99 @@ for i = 1:N3D
 end
 
 %% plotting
-set(0,'DefaultFigureWindowStyle','docked')
 
-%% error solutions
-figure(1)
-loglog((D2nList),error2D)
-hold on
-loglog((D3nList),error3D)
-hold off
-set(gca,'xtick',D2nList);
-set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
-grid on
-legend("2D","3D")
-xlabel("number of grid elements in each dimension")
-ylabel("inf norm of the error")
-title(["Error convergence of the discritized system in 2D and 3D";" with the help of direct solvers for various number of grid spacings."]);
+if plot_figure
+    set(0,'DefaultFigureWindowStyle','docked')
 
-%% time for operations
-figure(2)
-title({'Time requirements of the Cholesky decomposition and';'the Forward/Backward solve steps for various number of grid elements.'});
+    %% error solutions
+    figure(1)
+    loglog((D2nList),error2D)
+    hold on
+    loglog((D3nList),error3D)
+    hold off
+    set(gca,'xtick',D2nList);
+    set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+    grid on
+    legend("2D","3D")
+    xlabel("number of grid elements in each dimension")
+    ylabel("inf norm of the error")
+    title(["Error convergence of the discritized system in 2D and 3D";" with the help of direct solvers for various number of grid spacings."]);
 
-subplot(3,1,1)
-loglog(D2nList,times_fac_2D);
-hold on
-loglog(D2nList,times_sol_2D);
-hold off
-set(gca,'xtick',D2nList);
-set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
-grid on
-legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
-xlabel("number of grid elements in each dimension");
-ylabel("time in seconds of each operation");
+    %% time for operations
+    figure(2)
+    title({'Time requirements of the Cholesky decomposition and';'the Forward/Backward solve steps for various number of grid elements.'});
 
-subplot(3,1,2)
-loglog(D3nList,times_fac_3D);
-hold on
-loglog(D3nList,times_sol_3D);
-hold off
-set(gca,'xtick',D3nList);
-set (gca, 'XTickLabel', strcat('2^{',num2str((D3pList(:))),'}'));
-grid on
-legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
-xlabel("number of grid elements in each dimension");
-ylabel("time in seconds of each operation");
+    subplot(3,1,1)
+    loglog(D2nList,times_fac_2D);
+    hold on
+    loglog(D2nList,times_sol_2D);
+    hold off
+    set(gca,'xtick',D2nList);
+    set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+    grid on
+    legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
+    xlabel("number of grid elements in each dimension");
+    ylabel("time in seconds of each operation");
+    title("2D Direct:");
 
-subplot(3,1,3)
-loglog(D2nList,times_IC_2D);
-hold on
-loglog(D3nList,times_IC_3D);
-hold off
-set(gca,'xtick',D2nList);
-set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
-grid on
-legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
-xlabel("number of grid elements in each dimension");
-ylabel("time in seconds of each operation");
+    subplot(3,1,2)
+    loglog(D3nList,times_fac_3D);
+    hold on
+    loglog(D3nList,times_sol_3D);
+    hold off
+    set(gca,'xtick',D3nList);
+    set (gca, 'XTickLabel', strcat('2^{',num2str((D3pList(:))),'}'));
+    grid on
+    legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
+    xlabel("number of grid elements in each dimension");
+    ylabel("time in seconds of each operation");
+    title("3D Direct:");
 
-
-%% NNZ fill in ratio
-figure(3)
-semilogx(D2nList,NNZ(:,2)./NNZ(:,1));
-set(gca,'xtick',D2nList);
-set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
-grid on
-xlabel("number of grid elements in each dimension");
-ylabel("ratio of NNZ of C_h and A_h");
-title("the C_h/A_h ratio of the non zero elements counts in each matrix.");
-
-%% convergence of IC BIM
-figure(4)
-subplot(2,1,1)
-loglog(ICBIM_conv_2D');
-title("2D IC BIM convergence")
-grid on
-xlabel("Number of iterations");
-ylabel("2 norm of the error");
-legend(compose('p=%u',D3pList))
-subplot(2,1,2)
-loglog(ICBIM_conv_3D');
-title("3D IC BIM convergence")
-grid on
-xlabel("Number of iterations");
-ylabel("2 norm of the error");
-legend(compose('p=%u',D3pList))
+    subplot(3,1,3)
+    loglog(D2nList,times_IC_2D);
+    hold on
+    loglog(D3nList,times_IC_3D);
+    hold off
+    set(gca,'xtick',D2nList);
+    set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+    grid on
+    legend("2D","3D",'location','southeast');
+    xlabel("number of grid elements in each dimension");
+    ylabel("time in seconds of each operation");
+    title("IC BIM:");
 
 
+    %% NNZ fill in ratio
+    figure(3)
+    semilogx(D2nList,NNZ(:,2)./NNZ(:,1));
+    set(gca,'xtick',D2nList);
+    set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+    grid on
+    xlabel("number of grid elements in each dimension");
+    ylabel("ratio of NNZ of C_h and A_h");
+    title("the C_h/A_h ratio of the non zero elements counts in each matrix.");
 
+    %% convergence of IC BIM
+    figure(4)
+    subplot(2,1,1)
+    loglog(ICBIM_conv_2D');
+    title("2D IC BIM convergence")
+    grid on
+    xlabel("Number of iterations");
+    ylabel("2 norm of the error");
+    legend(compose('p=%u',D3pList))
+    subplot(2,1,2)
+    loglog(ICBIM_conv_3D');
+    title("3D IC BIM convergence")
+    grid on
+    xlabel("Number of iterations");
+    ylabel("2 norm of the error");
+    legend(compose('p=%u',D3pList))
 
-
-set(0,'DefaultFigureWindowStyle','normal')
-
+    
+    
+    set(0,'DefaultFigureWindowStyle','normal')
+end
 
 
 % scatter3(D2Mesh(1,:)',D2Mesh(2,:)',u_dir_2D)

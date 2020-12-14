@@ -3,7 +3,10 @@ D3pList = 2:5; % do not go above 5 for MATLAB implementation of 3 for user imple
 
 epsilon = 1e-10; % convergence criteria IC BIM
 
-use_MATLAB = true; % when true use matlab own implementation for code speed up
+use_MATLAB  = true; % when true use matlab own implementation for code speed up
+plot_figure = false; % plot figures
+use_symrcm  = true; % use matrix reordering
+
 
 M = 2000; % max number of iterations to plot convergence
 
