@@ -27,23 +27,27 @@ function [u_k,ICCG_conv,times_ICCG] = ICCG_Solve(A,f,solve_options,n,dim)
         alpha_k = n_r_k_old/(p_k'*A_p_k);   % k-1 / k
         u_k = u_k + alpha_k*p_k;            % k
         r_k = r_k - alpha_k*A_p_k;          % k - k-1
+        
+        % r_k might differ from this criterion. We start again if that is the
+        % case
+        while norm(f-A*u_k)>crit
+            [u_k,convergence] = while_loop_MATLAB(u_k,r_k,p_k,n_r_k_old,crit,A,M_pre,convergence);
+        end
     else
-        z_k = UpperSolver(M_pre',LowerSolver(M_pre,r_k,size(A,1)-1),size(A,1)-1);
+        z_k = UpperSolver(M_pre',LowerSolver(M_pre,r_k,(n-1)^(dim-1)),(n-1)^(dim-1));
         p_k = z_k;
         A_p_k = A*p_k;                  % k
         n_r_k_old = r_k'*z_k;
         alpha_k = n_r_k_old/(p_k'*A_p_k);   % k-1 / k
         u_k = u_k + alpha_k*p_k;            % k
         r_k = r_k - alpha_k*A_p_k;          % k - k-1
+        
+        % r_k might differ from this criterion. We start again if that is the
+        % case
+        while norm(f-A*u_k)>crit
+            [u_k,convergence] = while_loop(u_k,r_k,p_k,n_r_k_old,crit,A,M_pre,convergence,n,dim);
+        end
     end  
-
-
-    
-    % r_k might differ from this criterion. We start again if that is the
-    % case
-    while norm(f-A*u_k)>crit
-        [u_k,convergence] = while_loop(u_k,r_k,p_k,n_r_k_old,crit,A,M_pre,convergence);
-    end
     times_ICCG = toc;
     
     ICCG_conv = convergence.ICCG_conv;
@@ -51,9 +55,27 @@ function [u_k,ICCG_conv,times_ICCG] = ICCG_Solve(A,f,solve_options,n,dim)
     
 end
 
-function [u_k,convergence] = while_loop(u_k,r_k,p_k,n_r_k_old,crit,A,M_pre,convergence)
+function [u_k,convergence] = while_loop_MATLAB(u_k,r_k,p_k,n_r_k_old,crit,A,M_pre,convergence)
     while norm(r_k)>crit
         z_k = M_pre'\(M_pre\r_k);
+        n_r_k = r_k'*z_k;               % k-1
+        beta_k = n_r_k/n_r_k_old;       % k-1 / k-2
+        p_k = z_k + beta_k*p_k;         % k-1
+        
+        A_p_k = A*p_k;              % k
+        alpha_k = n_r_k/(p_k'*A_p_k);   % k-1 / k
+        u_k = u_k + alpha_k*p_k;        % k
+        r_k = r_k - alpha_k*A_p_k;      % k - k-1
+        convergence.ICCG_conv(convergence.i) = norm(r_k)/convergence.nF;
+        convergence.i = convergence.i + 1;
+        
+        n_r_k_old = n_r_k;              % k-2 <= k-1
+    end
+end
+
+function [u_k,convergence] = while_loop(u_k,r_k,p_k,n_r_k_old,crit,A,M_pre,convergence,n,dim)
+    while norm(r_k)>crit
+        z_k = UpperSolver(M_pre',LowerSolver(M_pre,r_k,(n-1)^(dim-1)),(n-1)^(dim-1));
         n_r_k = r_k'*z_k;               % k-1
         beta_k = n_r_k/n_r_k_old;       % k-1 / k-2
         p_k = z_k + beta_k*p_k;         % k-1

@@ -5,12 +5,15 @@ epsilon = 1e-10; % convergence criteria IC BIM
 
 use_MATLAB  = false; % when true use matlab own implementation for code speed up
 plot_figure = true; % plot figures
-use_symrcm  = false; % use matrix reordering
+use_symrcm  = true; % use matrix reordering
 
 
 M = 2000; % max number of iterations to plot convergence
 
 
+do_DIRECT   = true;
+do_IC_BIM   = true;
+do_ICCG     = true;
 
 %% some setup stuff
 D2nList = 2.^D2pList;

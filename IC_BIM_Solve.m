@@ -24,6 +24,7 @@ function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options,n,dim)
         L1 = L*Dinv;
         R = L1*L' - A;
         while norm(rk)>crit
+            disp(num2str(rk))
             uk = UpperSolver(L',LowerSolver(L1,R*uk + f,(n-1)^(dim-1)),(n-1)^(dim-1));
             rk = f - A*uk;
             j = j+1;

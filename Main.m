@@ -47,25 +47,33 @@ for i = 1:N2D
     D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh(:,p),n)';
 
 
-    %% direct solvers 2D
-    disp("Direct solver")
-    u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
-    [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options,n,2);
+    if do_DIRECT
+        %% direct solvers 2D
+        fprintf("Direct solver:     ")
+        u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
+        [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options,n,2);
+
+        error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
+        fprintf(strcat(num2str(times_fac_2D(i)+times_sol_2D(i))," seconds\n"));
+        
+    end
     
-    error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
+    if do_IC_BIM
+        %% IC BIM
+        fprintf("IC BIM:            ")
+        u_k_ICBIM_2D = 0*D2f_dir;     % we need a blank vector of correct size
+        [u_k_ICBIM_2D(p),ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options,n,2);
+        fprintf(strcat(num2str(times_ICBIM_2D(i))," seconds\n"));
+    end
     
-    
-    %% IC BIM
-    disp("IC BIM")
-    u_k_ICBIM_2D = 0*D2f_dir;     % we need a blank vector of correct size
-    [u_k_ICBIM_2D(p),ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options,n,2);
- 
-    
-    %% ICCG
-    disp("ICCG")
-    crit = epsilon*norm(D2f_dir);
-    u_k_ICCG_2D = 0*D2f_dir;     % we need a blank vector of correct size
-    [u_k_ICCG_2D(p),ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options,n,2);
+    if do_ICCG
+        %% ICCG
+        fprintf("ICCG:              ")
+        crit = epsilon*norm(D2f_dir);
+        u_k_ICCG_2D = 0*D2f_dir;     % we need a blank vector of correct size
+        [u_k_ICCG_2D(p),ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options,n,2);
+        fprintf(strcat(num2str(times_ICCG_2D(i))," seconds\n"));
+    end
     
 end
 
@@ -96,34 +104,43 @@ for i = 1:N3D
     % add boundary conditions
     D3f_dir = CreateBC3D(@(x) u_ex_3D(x),@(x)  f_3D(x),D3Mesh(:,p),n)';
 
+    if do_DIRECT
+        %% direct solvers 3D
+        fprintf("Direct solver:     ")
 
-    %% direct solvers 3D
-    disp("Direct Solver")
-    
-    u_dir_3D = 0*D3f_dir;     % we need a blank vector of correct size
-    [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options,n,3);
-    
-    error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
-    
-    %% IC BIM
-    disp("IC BIM")
-    u_k_ICBIM_3D = 0*D3f_dir;     % we need a blank vector of correct size
-    [u_k_ICBIM_3D(p),ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options,n,3);
+        u_dir_3D = 0*D3f_dir;     % we need a blank vector of correct size
+        [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options,n,3);
 
+        error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
+        fprintf(strcat(num2str(times_fac_3D(i)+times_sol_3D(i))," seconds\n"));
+    end
     
-    %% ICCG
-    disp("ICCG")
-    crit = epsilon*norm(D3f_dir);
-    u_k_ICCG_3D = 0*D3f_dir;     % we need a blank vector of correct size
-    [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,3);
+    if do_IC_BIM
+        %% IC BIM
+        fprintf("IC BIM:            ")
+        u_k_ICBIM_3D = 0*D3f_dir;     % we need a blank vector of correct size
+        [u_k_ICBIM_3D(p),ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options,n,3);
+        fprintf(strcat(num2str(times_ICBIM_3D(i))," seconds\n"));
+    end
+    
+    if do_ICCG
+        %% ICCG
+        fprintf("ICCG:              ")
+        crit = epsilon*norm(D3f_dir);
+        u_k_ICCG_3D = 0*D3f_dir;     % we need a blank vector of correct size
+        [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,3);
+        fprintf(strcat(num2str(times_ICCG_3D(i))," seconds\n"));
+    end
     
 end
 
 %% plotting
 
 if plot_figure
+    disp("Plotting")
     set(0,'DefaultFigureWindowStyle','docked')
 
+  
     %% error solutions
     figure(1)
     loglog((D2nList),error2D)
@@ -137,7 +154,7 @@ if plot_figure
     xlabel("number of grid elements in each dimension")
     ylabel("inf norm of the error")
     title(["Error convergence of the discritized system in 2D and 3D";" with the help of direct solvers for various number of grid spacings."]);
-
+    
     %% time for operations
     figure(2)
     title({'Time requirements of the Cholesky decomposition and';'the Forward/Backward solve steps for various number of grid elements.'});
