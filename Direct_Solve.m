@@ -1,4 +1,4 @@
-function [u,times_fac,times_sol,NNZ] = Direct_Solve(A,f,solve_options)
+function [u,times_fac,times_sol,NNZ] = Direct_Solve(A,f,solve_options,n,dim)
 
     NNZ = zeros(1,2);
     NNZ(1) = nnz(A);
@@ -23,7 +23,7 @@ function [u,times_fac,times_sol,NNZ] = Direct_Solve(A,f,solve_options)
         t_end = toc;
     else
         tic;
-        u = UpperSolver(C',LowerSolver(C,f,size(A,1)-1),size(A,1)-1);
+        u = UpperSolver(C',LowerSolver(C,f,(n-1)^(dim-1)),(n-1)^(dim-1));
         t_end = toc;
     end
     times_sol = t_end;

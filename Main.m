@@ -50,7 +50,7 @@ for i = 1:N2D
     %% direct solvers 2D
     disp("Direct solver")
     u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
-    [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options);
+    [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options,n,2);
     
     error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
     
@@ -101,7 +101,7 @@ for i = 1:N3D
     disp("Direct Solver")
     
     u_dir_3D = 0*D3f_dir;     % we need a blank vector of correct size
-    [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options);
+    [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options,n,2);
     
     error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
     
