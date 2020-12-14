@@ -24,7 +24,7 @@ function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options)
         L1 = L*Dinv;
         R = L1*L' - A;
         while norm(rk)>crit
-            uk = UpperSolver(L',LowerSolver(L1,R*uk + f,size(A,1)-1),size(A,1)-1);
+            uk = UpperSolver(L',LowerSolver(L1,R*uk + f,size(L1,1)),size(L,1)-1);
             rk = f - A*uk;
             j = j+1;
             ICBIM_conv(1,j) = norm(rk)/nF;
