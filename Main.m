@@ -21,10 +21,12 @@ ParameterFile;
 N2D = numel(D2pList);
 times_fac_2D = zeros(N2D,1);
 times_sol_2D = zeros(N2D,1);
-times_IC_2D = zeros(N2D,1);
+times_ICBIM_2D = zeros(N2D,1);
+times_ICCG_2D = zeros(N2D,1);
 NNZ = zeros(N2D,2);
 error2D = zeros(N2D,1);
 ICBIM_conv_2D = zeros(N2D,M);
+ICCG_conv_2D  = zeros(N2D,M);
 
 for i = 1:N2D
     disp(strcat("2D Running p of p max : (",num2str(D2pList(i)),"/",num2str(max(D2pList)),")"))
@@ -39,84 +41,32 @@ for i = 1:N2D
     D2Mat = D2Mat(p,p);
     D2u_ex = u_ex_2D(D2Mesh);
 
-    NNZ(i,1) = nnz(D2Mat);
+    
     
     % add boundary conditions
     D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh(:,p),n)';
 
 
     %% direct solvers 2D
-    disp("Direct solver")
-    % calculate Cholesky Decompostion
-    if use_MATLAB
-        tic;
-        C_2D = chol(D2Mat,'lower');
-        t_end = toc;
-    else
-        tic
-        C_2D = CholeskyDecompostion(D2Mat);
-        t_end = toc;
-    end
-    times_fac_2D(i) = t_end;
-        
-%     C_2D1 = chol(D2Mat,'lower');
-%     C_2D2 = CholeskyDecompostion(D2Mat);
-%     error = sum(sum(abs(C_2D1-C_2D2)))
-   
-    NNZ(i,2) = nnz(C_2D);
-
-    % solve 2D problem
-    if use_MATLAB
-        tic;
-        u_dir_2D = C_2D'\(C_2D\(D2f_dir));
-        t_end = toc;
-    else
-        tic;
-        u_dir_2D = UpperSolver(C_2D',LowerSolver(C_2D,D2f_dir,n-1),n-1);
-        t_end = toc;
-    end
-    times_sol_2D(i) = t_end;
-    % reverse reordering
-    u_dir_2D(p) = u_dir_2D;
-    
-    error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
+%     disp("Direct solver")
+%     u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
+%     [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options);
+%     
+%     error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
     
     
     %% IC BIM
-    disp("IC BIM")
-    L = ichol(D2Mat);
-    LT = L';
-    R = L*L' - D2Mat;
-    uk = 0*D2f_dir;
-    rk = D2f_dir;
-    crit = epsilon*norm(D2f_dir);
-    j = 0;
-    nF = norm(D2f_dir);
-    tic;
-    if use_MATLAB
-        L = ichol(D2Mat);
-        R = L*L' - D2Mat;
-        while norm(rk)>crit
-            uk = LT\(L\(R*uk + D2f_dir));
-            rk = D2f_dir - D2Mat*uk;
-            j = j+1;
-            ICBIM_conv_2D(i,j) = norm(rk)/nF;
-        end
-    else
-        L = IncompleteCholesky(D2Mat,n-1);
-        Dinv = inv(spdiags(spdiags(L,0),0,(n-1)^2,(n-1)^2));
-        L1 = L*Dinv;
-        R = L1*L' - D2Mat;
-        while norm(rk)>crit
-            uk = UpperSolver(LT,LowerSolver(L1,R*uk + D2f_dir,n-1),n-1);
-            rk = D2f_dir - D2Mat*uk;
-            j = j+1;
-            ICBIM_conv_2D(i,j) = norm(rk)/nF;
-        end
-    end
-    times_IC_2D(i) = toc;
+%     disp("IC BIM")
+%     
+%     [u_k_ICBIM,ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options);
+ 
     
-
+    %% ICCG
+    disp("ICCG")
+    crit = epsilon*norm(D2f_dir);
+    
+    [u_k_ICCG_2D,ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options);
+    
 end
 
 
@@ -125,8 +75,10 @@ N3D = numel(D3pList);
 error3D = zeros(N3D,1);
 times_fac_3D = zeros(N3D,1);
 times_sol_3D = zeros(N3D,1);
-times_IC_3D = zeros(N3D,1);
+times_ICBIM_3D = zeros(N3D,1);
+times_ICCG_3D = zeros(N3D,1);
 ICBIM_conv_3D = zeros(N3D,M);
+ICCG_conv_3D = zeros(N3D,M);
 
 for i = 1:N3D
     disp(strcat("3D Running p of p max : (",num2str(D3pList(i)),"/",num2str(max(D3pList)),")"))
@@ -146,69 +98,25 @@ for i = 1:N3D
 
 
     %% direct solvers 3D
-    % calculate Cholesky Decompostion
     disp("Direct Solver")
-
-    if use_MATLAB
-        tic;
-        C_3D = chol(D3Mat,'lower');
-        times_fac_3D(i) = toc;
-    else
-        tic;
-        C_3D = CholeskyDecompostion(D3Mat);
-        times_fac_3D(i) = toc;
-    end
-        
-    % solve 3D problem
-    if use_MATLAB
-        tic;
-        u_dir_3D = C_3D'\(C_3D\(D3f_dir));
-        times_sol_3D(i) = toc;
-    else
-        tic;
-        u_dir_3D = UpperSolver(C_3D',LowerSolver(C_3D,D3f_dir,(n-1)^2),(n-1)^2);
-        times_sol_3D(i) = toc;
-    end
-    % reverse ordering
-    u_dir_3D(p) = u_dir_3D;
     
+    u_dir_3D = 0*D3f_dir;     % we need a blank vector of correct size
+    [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options);
     
     error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
     
     %% IC BIM
     disp("IC BIM")
-    L = ichol(D3Mat);
-    LT = L';
-    R = L*L' - D3Mat;
-    uk = 0*D3f_dir;
-    rk = D3f_dir;
-    crit = epsilon*norm(D3f_dir);
-    j = 0;
-    nF = norm(D3f_dir);
-    tic;
-    if use_MATLAB
-        L = ichol(D3Mat);
-        R = L*L' - D3Mat;
-        while norm(rk)>crit
-            uk = LT\(L\(R*uk + D3f_dir));
-            rk = D3f_dir - D3Mat*uk;
-            j = j+1;
-            ICBIM_conv_3D(i,j) = norm(rk)/nF;
-        end
-    else
-        L = IncompleteCholesky(D3Mat,n-1,(n-1)^2);
-        Dinv = inv(spdiags(spdiags(L,0),0,(n-1)^3,(n-1)^3));
-        L1 = L*Dinv;
-        R = L1*L' - D3Mat;
-        while norm(rk)>crit
-            uk = UpperSolver(LT,LowerSolver(L1,R*uk + D3f_dir,(n-1)^2),(n-1)^2);
-            rk = D3f_dir - D3Mat*uk;
-            j = j+1;
-            ICBIM_conv_3D(i,j) = norm(rk)/nF;
-        end
-    end
-    times_IC_3D(i) = toc;
+    
+    [uk,ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options);
 
+    
+    %% ICCG
+    disp("ICCG")
+    crit = epsilon*norm(D3f_dir);
+    
+    [u_k_ICCG_3D,ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options);
+    
 end
 
 %% plotting
@@ -261,9 +169,9 @@ if plot_figure
     title("3D Direct:");
 
     subplot(3,1,3)
-    loglog(D2nList,times_IC_2D);
+    loglog(D2nList,times_ICBIM_2D);
     hold on
-    loglog(D3nList,times_IC_3D);
+    loglog(D3nList,times_ICBIM_3D);
     hold off
     set(gca,'xtick',D2nList);
     set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
@@ -292,7 +200,7 @@ if plot_figure
     grid on
     xlabel("Number of iterations");
     ylabel("2 norm of the error");
-    legend(compose('p=%u',D3pList))
+    legend(compose('p=%u',D2pList))
     subplot(2,1,2)
     loglog(ICBIM_conv_3D');
     title("3D IC BIM convergence")
@@ -301,6 +209,22 @@ if plot_figure
     ylabel("2 norm of the error");
     legend(compose('p=%u',D3pList))
 
+    %% convergence of ICCG
+    figure(5)
+    subplot(2,1,1)
+    loglog(ICCG_conv_2D');
+    title("2D ICCG convergence")
+    grid on
+    xlabel("Number of iterations");
+    ylabel("2 norm of the error");
+    legend(compose('p=%u',D2pList))
+    subplot(2,1,2)
+    loglog(ICCG_conv_3D');
+    title("3D ICCG convergence")
+    grid on
+    xlabel("Number of iterations");
+    ylabel("2 norm of the error");
+    legend(compose('p=%u',D3pList))
     
     
     set(0,'DefaultFigureWindowStyle','normal')
