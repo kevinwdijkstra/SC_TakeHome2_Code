@@ -34,24 +34,24 @@ for i = 1:N2D
     n = D2nList(i);
     [D2Mesh, x, y, z] = CreateMesh2D(n);
     [D2Mat]   = CreateMatrix2D(n);
-    p = symrcm(D2Mat);
-    if ~use_symrcm
-        p = 1:length(p);
+    if use_symrcm
+        p = symrcm(D2Mat);
+    else
+        p = 1:(n-1)^2;
     end
-    D2Mat = D2Mat(p,p);
     D2u_ex = u_ex_2D(D2Mesh);
 
     
     
     % add boundary conditions
-    D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh(:,p),n)';
+    D2f_dir = CreateBC2D(@(x) u_ex_2D(x),@(x)  f_2D(x),D2Mesh,n)';
 
 
     if do_DIRECT
         %% direct solvers 2D
         fprintf("Direct solver:     ")
         u_dir_2D = 0*D2f_dir;     % we need a blank vector of correct size
-        [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat,D2f_dir,solve_options,n,2);
+        [u_dir_2D(p),times_fac_2D(i),times_sol_2D(i),NNZ(i,:)] = Direct_Solve(D2Mat(p,p),D2f_dir(p),solve_options,n,2);
 
         error2D(i) = norm(u_dir_2D - D2u_ex',Inf);
         fprintf(strcat(num2str(times_fac_2D(i)+times_sol_2D(i))," seconds\n"));
@@ -62,7 +62,7 @@ for i = 1:N2D
         %% IC BIM
         fprintf("IC BIM:            ")
         u_k_ICBIM_2D = 0*D2f_dir;     % we need a blank vector of correct size
-        [u_k_ICBIM_2D(p),ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options,n,2);
+        [u_k_ICBIM_2D,ICBIM_conv_2D(i,:),times_ICBIM_2D(i)] = IC_BIM_Solve(D2Mat,D2f_dir,solve_options,n,2);
         fprintf(strcat(num2str(times_ICBIM_2D(i))," seconds\n"));
     end
     
@@ -70,7 +70,7 @@ for i = 1:N2D
         %% ICCG
         fprintf("ICCG:              ")
         u_k_ICCG_2D = 0*D2f_dir;     % we need a blank vector of correct size
-        [u_k_ICCG_2D(p),ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options,n,2);
+        [u_k_ICCG_2D,ICCG_conv_2D(i,:),times_ICCG_2D(i)] = ICCG_Solve(D2Mat,D2f_dir,solve_options,n,2);
         fprintf(strcat(num2str(times_ICCG_2D(i))," seconds\n"));
     end
     
@@ -93,22 +93,22 @@ for i = 1:N3D
     n = D3nList(i);
     [D3Mesh, x, y, z] = CreateMesh3D(n);
     [D3Mat]   = CreateMatrix3D(n);
-    p = symrcm(D3Mat);
-    if ~use_symrcm
-        p = 1:length(p);
+    if use_symrcm
+        p = symrcm(D3Mat);
+    else
+        p = 1:(n-1)^3;
     end
-    D3Mat = D3Mat(p,p);
     D3u_ex = u_ex_3D(D3Mesh);
     
     % add boundary conditions
-    D3f_dir = CreateBC3D(@(x) u_ex_3D(x),@(x)  f_3D(x),D3Mesh(:,p),n)';
+    D3f_dir = CreateBC3D(@(x) u_ex_3D(x),@(x)  f_3D(x),D3Mesh,n)';
 
     if do_DIRECT
         %% direct solvers 3D
         fprintf("Direct solver:     ")
 
         u_dir_3D = 0*D3f_dir;     % we need a blank vector of correct size
-        [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat,D3f_dir,solve_options,n,3);
+        [u_dir_3D(p),times_fac_3D(i),times_sol_3D(i),~] = Direct_Solve(D3Mat(p,p),D3f_dir(p),solve_options,n,3);
 
         error3D(i) = norm(u_dir_3D - D3u_ex',Inf);
         fprintf(strcat(num2str(times_fac_3D(i)+times_sol_3D(i))," seconds\n"));
@@ -118,7 +118,7 @@ for i = 1:N3D
         %% IC BIM
         fprintf("IC BIM:            ")
         u_k_ICBIM_3D = 0*D3f_dir;     % we need a blank vector of correct size
-        [u_k_ICBIM_3D(p),ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options,n,3);
+        [u_k_ICBIM_3D,ICBIM_conv_3D(i,:),times_ICBIM_3D(i)] = IC_BIM_Solve(D3Mat,D3f_dir,solve_options,n,3);
         fprintf(strcat(num2str(times_ICBIM_3D(i))," seconds\n"));
     end
     
@@ -126,7 +126,7 @@ for i = 1:N3D
         %% ICCG
         fprintf("ICCG:              ")
         u_k_ICCG_3D = 0*D3f_dir;     % we need a blank vector of correct size
-        [u_k_ICCG_3D(p),ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,3);
+        [u_k_ICCG_3D,ICCG_conv_3D(i,:),times_ICCG_3D(i)] = ICCG_Solve(D3Mat,D3f_dir,solve_options,n,3);
         fprintf(strcat(num2str(times_ICCG_3D(i))," seconds\n"));
     end
     
