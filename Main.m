@@ -167,7 +167,7 @@ if plot_figure
     grid on
     legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
     xlabel("number of grid elements in each dimension");
-    ylabel("time in seconds of each operation");
+    ylabel("time [seconds]");
     title("2D Direct:");
 
     subplot(4,1,2)
@@ -180,7 +180,7 @@ if plot_figure
     grid on
     legend("Cholesky decomposition","Forward/Backward solve",'location','southeast');
     xlabel("number of grid elements in each dimension");
-    ylabel("time in seconds of each operation");
+    ylabel("time [seconds]");
     title("3D Direct:");
 
     subplot(4,1,3)
@@ -193,7 +193,7 @@ if plot_figure
     grid on
     legend("2D","3D",'location','southeast');
     xlabel("number of grid elements in each dimension");
-    ylabel("time in seconds of each operation");
+    ylabel("time [seconds]");
     title("IC BIM:");
     
     subplot(4,1,4)
@@ -206,7 +206,7 @@ if plot_figure
     grid on
     legend("2D","3D",'location','southeast');
     xlabel("number of grid elements in each dimension");
-    ylabel("time in seconds of each operation");
+    ylabel("time [seconds]");
     title("ICCG:");
 
 
