@@ -212,9 +212,9 @@ if plot_figure
 
     %% NNZ fill in ratio
     figure(3)
-    semilogx(D2nList,NNZ(:,2)./NNZ(:,1));
-    set(gca,'xtick',D2nList);
-    set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
+    plot(D2nList,NNZ(:,2)./NNZ(:,1),'--o');
+%     set(gca,'xtick',D2nList);
+%     set (gca, 'XTickLabel', strcat('2^{',num2str((D2pList(:))),'}'));
     grid on
     xlabel("number of grid elements in each dimension");
     ylabel("ratio of NNZ of C_h and A_h");
