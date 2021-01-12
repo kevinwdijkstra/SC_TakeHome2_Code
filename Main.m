@@ -224,6 +224,7 @@ if plot_figure
     figure(4)
     subplot(2,1,1)
     loglog(ICBIM_conv_2D');
+    ylim([1e-10 1])
     title("2D IC BIM convergence")
     grid on
     xlabel("Number of iterations");
@@ -231,6 +232,7 @@ if plot_figure
     legend(compose('p=%u',D2pList))
     subplot(2,1,2)
     loglog(ICBIM_conv_3D');
+    ylim([1e-10 1])
     title("3D IC BIM convergence")
     grid on
     xlabel("Number of iterations");
@@ -241,6 +243,7 @@ if plot_figure
     figure(5)
     subplot(2,1,1)
     loglog(ICCG_conv_2D');
+    ylim([1e-10 1])
     title("2D ICCG convergence")
     grid on
     xlabel("Number of iterations");
@@ -248,6 +251,7 @@ if plot_figure
     legend(compose('p=%u',D2pList))
     subplot(2,1,2)
     loglog(ICCG_conv_3D');
+    ylim([1e-10 1])
     title("3D ICCG convergence")
     grid on
     xlabel("Number of iterations");
@@ -279,6 +283,38 @@ if plot_figure
     ylabel("total time");
     legend("Direct","IC BIM","ICCG",'location','northwest')
     
+    
+    %% Last 5 iterations convergence ratio
+    figure(7)
+    % 2D
+    subplot(2,1,1)
+    for i = 1:numel(D2pList)
+        I2D = find(ICBIM_conv_2D(i,:) > 0);
+        Iend = I2D(end);
+        plot([-5 -4 -3 -2 -1 0],ICBIM_conv_2D(i,Iend-5:Iend)./(ICBIM_conv_2D(i,Iend-6:Iend-1)),"-o");
+        hold on
+    end
+    hold off
+    legend(num2str(D2pList'))
+    grid on
+    title("2D last 5 iterations ratio of convergence")
+    xlabel("iteration n from last iteration")
+    ylabel("ratio $\frac{||\mathbf{r}_n||_2}{||\mathbf{r}_{n-1}||_2}$",'interpreter','latex')
+    
+    % 3D
+    subplot(2,1,2)
+    for i = 1:numel(D3pList)
+        I3D = find(ICBIM_conv_3D(i,:) > 0);
+        Iend = I3D(end);
+        plot(ICBIM_conv_3D(i,Iend-5:Iend)./(ICBIM_conv_3D(i,Iend-6:Iend-1)),"-o");
+        hold on
+    end
+    hold off
+    legend(num2str(D3pList'))
+    grid on
+    title("3D last 5 iterations ratio of convergence")
+    xlabel("iteration n from last iteration")
+    ylabel("ratio $\frac{||\mathbf{r}_n||_2}{||\mathbf{r}_{n-1}||_2}$",'interpreter','latex')
     
     set(0,'DefaultFigureWindowStyle','normal')
 end
