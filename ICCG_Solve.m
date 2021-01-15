@@ -17,7 +17,8 @@ crit = solve_options.epsilon*norm(f);
 if solve_options.use_MATLAB % wether to use matlab or our implementation
     M_pre = ichol(A);
 else
-    M_pre = IncompleteCholesky(A,n-1,dim);
+    L = IncompleteCholesky(A,n-1,dim);
+    M_pre = L*inv(sqrt(spdiags(spdiags(L,0),0,(n-1)^dim,(n-1)^dim)));
 end    
 
 % set initial values to zero

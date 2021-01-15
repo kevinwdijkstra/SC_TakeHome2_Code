@@ -1,4 +1,4 @@
-function [UK,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options,n,dim)
+function [uk,ICBIM_conv,times_IC] = IC_BIM_Solve(A,f,solve_options,n,dim)
 % IC_BIM_SOLVE Solve the equation Au=f directly using the Incomplete
 % Cholesky decomposition as a Basic Iterative Method.
 %   [UK,ICBIM_CONV,TIMES_IC] = IC_BIM_SOLVE(A,F,SOLVE_OPTIONS,N,DIM)
