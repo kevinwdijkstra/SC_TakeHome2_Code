@@ -1,14 +1,10 @@
-<<<<<<< HEAD
-D2pList = 2:7;          % do not go above 7 for MATLAB implementation or 5 for user implementation
-D3pList = 2:5;          % do not go above 5 for MATLAB implementation or 3 for user implementation
-=======
-D2pList = 2:6;          % do not go above 7 for MATLAB implementation or 5 for user implementation
-D3pList = 2:4;          % do not go above 5 for MATLAB implementation or 3 for user implementation
->>>>>>> comments
+D2pList = 2:6;          % do not go above 7 for MATLAB implementation or 6 for user implementation
+D3pList = 2:4;          % do not go above 5 for MATLAB implementation or 4 for user implementation
+
 
 epsilon = 1e-10;        % convergence criteria IC BIM
 
-use_MATLAB  = true;     % when true use matlab own implementation for code speed up
+use_MATLAB  = false;     % when true use matlab own implementation for code speed up
 plot_figure = true;     % plot figures
 use_symrcm  = true;     % use matrix reordering
 
