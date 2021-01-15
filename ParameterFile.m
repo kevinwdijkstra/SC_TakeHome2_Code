@@ -1,5 +1,5 @@
-D2pList = 2:5;          % do not go above 7 for MATLAB implementation or 5 for user implementation
-D3pList = 2:3;          % do not go above 5 for MATLAB implementation or 3 for user implementation
+D2pList = 2:6;          % do not go above 7 for MATLAB implementation or 5 for user implementation
+D3pList = 2:4;          % do not go above 5 for MATLAB implementation or 3 for user implementation
 
 epsilon = 1e-10;        % convergence criteria IC BIM
 
