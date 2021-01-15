@@ -1,24 +1,11 @@
 function [A] = CholeskyDecompostion(A)
-   % Algotihm 4 from book
+% CHOLESYDECOMPOSITION Compute the Cholesky factor for matrix A according
+% to Algorithm 1 from the lecture notes.
+%   A = CHOLESKYDECOMPOSITION(A)  
 
-
-    [n,~] = size(A);
-%     [i,j,a] = find(A);
-    [p,~] = bandwidth(A);
-    %C = 0*A;
+    [n,~] = size(A); % Compute matrix dimensions n
+    [p,~] = bandwidth(A); % Compute bandwidth of A
     for j = 1:n
-%         Ck     = sqrt(A(k,k)-sum(C(k,max((k-N),1):k-1).^2));
-%         C(k,k) = Ck;
-%         A(k,k) = Ck;
-%         for i = k+1:min(k+M,n)
-%             
-%             Csub   = sum(C(i,max((k-N),1):(k-1)).*C(k,max((k-N),1):(k-1)));
-%             C(i,k) = 1/Ck*(A(i,k)-Csub);
-%             
-%             
-%             
-%             A(i,k) = C(i,k);
-%         end
         %% vectored
         Id1 = j+1:min(j+p,n);       % second for loop over i
         Id2 = max((j-p),1):(j-1);   % both sums over j
@@ -37,7 +24,7 @@ function [A] = CholeskyDecompostion(A)
         % calculate the entire second for loop over i in one go.
         A(Id1,j) = 1/Cj*(A(Id1,j) - Mat*Vec');
     end
-    A = tril(A);
+    A = tril(A); % Extract lower triangular part of matrix
 
 end
 
