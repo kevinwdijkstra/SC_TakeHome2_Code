@@ -1,8 +1,8 @@
 function [u,times_fac,times_sol,NNZ] = Direct_Solve(A,f,solve_options,n,dim)
 % DIRECT_SOLVE Solve the equation Au=f directly using the Cholesky
 % decomposition.
-%   [u,TIMES_FAC,TIMES_SOL,NNZ] = DIRECT_SOLVE(A,F,SOLVE_OPTIONS,N,DIM)
-%   solves AU=F using Cholesky decomposition. It returns a the duration of
+%   [U,TIMES_FAC,TIMES_SOL,NNZ] = DIRECT_SOLVE(A,F,SOLVE_OPTIONS,N,DIM)
+%   solves AU=F using Cholesky decomposition. It returns the duration of
 %   factorization TIMES_FAC, the duration of solving TIMES_SOL, and the
 %   number of nonzero elements NNZ of matrix A and the cholesky factor.
 
